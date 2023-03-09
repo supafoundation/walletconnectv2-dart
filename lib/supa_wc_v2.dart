@@ -157,4 +157,8 @@ class SupaWcV2 {
     }
     return "";
   }
+
+  Future<void> removeSession() async{
+    await storage.delete(key: sessionKeyStore);
+  }
 }
