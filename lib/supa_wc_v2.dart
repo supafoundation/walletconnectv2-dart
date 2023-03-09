@@ -139,12 +139,7 @@ class SupaWcV2 {
   String getWalletAddress() {
     var walletAdress = "";
     if (initialized) {
-      supaSessionData!.sessionData.namespaces.forEach((key, value) {
-        var listSplit = value.accounts.last.split(":");
-        if (listSplit.length == 3) {
-          walletAdress  = listSplit[2];
-        }
-      });
+      walletAdress = supaSessionData!.getWalletAddress();
     }
     return walletAdress;
   }
@@ -163,10 +158,12 @@ class SupaWcV2 {
       print("Sign done");
       return signResponse.toString();
     }
+    print("Init ${initialized}");
     return "";
   }
 
   Future<void> removeSession() async{
     await storage.delete(key: sessionKeyStore);
+    initialized = false;
   }
 }
