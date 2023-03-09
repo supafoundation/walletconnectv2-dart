@@ -6,18 +6,21 @@ part of 'wallet.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Wallet _$WalletFromJson(Map<String, dynamic> json) => Wallet(
+Wallet _$WalletFromJson(Map json) => Wallet(
       id: json['id'] as String,
       name: json['name'] as String,
       description: json['description'] as String?,
       homepage: json['homepage'] as String?,
       chains:
           (json['chains'] as List<dynamic>).map((e) => e as String).toList(),
-      app: WalletAppLinks.fromJson(json['app'] as Map<String, dynamic>),
-      mobile: WalletLinks.fromJson(json['mobile'] as Map<String, dynamic>),
-      desktop: WalletLinks.fromJson(json['desktop'] as Map<String, dynamic>),
-      metadata:
-          WalletMetadata.fromJson(json['metadata'] as Map<String, dynamic>),
+      app: WalletAppLinks.fromJson(
+          Map<String, dynamic>.from(json['app'] as Map)),
+      mobile: WalletLinks.fromJson(
+          Map<String, dynamic>.from(json['mobile'] as Map)),
+      desktop: WalletLinks.fromJson(
+          Map<String, dynamic>.from(json['desktop'] as Map)),
+      metadata: WalletMetadata.fromJson(
+          Map<String, dynamic>.from(json['metadata'] as Map)),
     );
 
 Map<String, dynamic> _$WalletToJson(Wallet instance) => <String, dynamic>{
@@ -26,10 +29,10 @@ Map<String, dynamic> _$WalletToJson(Wallet instance) => <String, dynamic>{
       'description': instance.description,
       'homepage': instance.homepage,
       'chains': instance.chains,
-      'app': instance.app,
-      'mobile': instance.mobile,
-      'desktop': instance.desktop,
-      'metadata': instance.metadata,
+      'app': instance.app.toJson(),
+      'mobile': instance.mobile.toJson(),
+      'desktop': instance.desktop.toJson(),
+      'metadata': instance.metadata.toJson(),
     };
 
 WalletLinks _$WalletLinksFromJson(Map<String, dynamic> json) => WalletLinks(

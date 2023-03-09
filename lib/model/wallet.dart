@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'wallet.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(anyMap: true, explicitToJson: true)
 class Wallet {
   final String id;
   final String name;

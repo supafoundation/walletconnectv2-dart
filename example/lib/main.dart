@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:supa_wc_v2/model/SupaWalletConnectParam.dart';
 import 'package:supa_wc_v2/supa_wc_v2.dart';
 
 void main() {
@@ -19,7 +20,16 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
-  final _supaWcV2Plugin = SupaWcV2();
+  final _supaWcV2Plugin = SupaWcV2(
+      SupaWalletConnectParam(
+          "62a566d93c3dde42fff6dc683ed2c9d4",
+          "SupaCharge",
+          "NFT App",
+          "https://supacharge.io",
+          ["https://nftstorage.link/ipfs/bafkreihwlc5nzn7756ogqpuhdc3aumzscaj5qsdlpcghdpohugtcu5e5w4"]),
+          (supaSession){
+
+  });
 
   String signRes = "";
 

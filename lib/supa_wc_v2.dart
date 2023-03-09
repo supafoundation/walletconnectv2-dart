@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:supa_wc_v2/model/SupaWalletConnectParam.dart';
 import 'package:supa_wc_v2/model/SupaWalletConnectSession.dart';
 import 'package:supa_wc_v2/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,11 +20,13 @@ class SupaWcV2 {
   late SignClient signClient;
   late FlutterSecureStorage storage;
   SupaWalletConnectSession? supaSessionData;
+  Function(SupaWalletConnectSession)? connectCallBack;
+  SupaWalletConnectParam? param;
 
 
   bool initialized = false;
   String sessionKeyStore = "supawcv2_session";
-  final String projectId = "62a566d93c3dde42fff6dc683ed2c9d4";
+  // final String projectId = "62a566d93c3dde42fff6dc683ed2c9d4";
   String uri = "";
 
   Wallet? wallet;
@@ -33,7 +36,9 @@ class SupaWcV2 {
   static final SupaWcV2 _instance =
   SupaWcV2._internal();
 
-  factory SupaWcV2() {
+  factory SupaWcV2(SupaWalletConnectParam param, Function(SupaWalletConnectSession) connectCallBack) {
+    _instance.connectCallBack = connectCallBack;
+    _instance.param = param;
     return _instance;
   }
 
@@ -50,10 +55,10 @@ class SupaWcV2 {
     );
 
     final paringMeta = PairingMetadata(
-      name: 'Wallet (Responder)',
-      description: 'A wallet that can be requested to sign transactions',
-      url:  'https://walletconnect.com',
-      icons: ['https://avatars.githubusercontent.com/u/37784886'],
+      name: param!.name,
+      description: param!.description,
+      url:  param!.url,
+      icons: param!.icons,
     );
 
 
@@ -68,7 +73,7 @@ class SupaWcV2 {
       if (supaSessionData!.getExpiredTime() > DateTime.now().millisecondsSinceEpoch/1000) {
         // init
         uri = supaSessionData!.uri;
-        signClient = await SignClient.createInstance(projectId: projectId,
+        signClient = await SignClient.createInstance(projectId: param!.projectId,
             metadata: paringMeta,
             relayUrl: 'wss://relay.walletconnect.com');
         await signClient.init();
@@ -88,7 +93,7 @@ class SupaWcV2 {
     if (!initialized) {
       signClient = await SignClient.createInstance(
           metadata: paringMeta,
-          projectId: projectId,
+          projectId: param!.projectId,
           relayUrl: 'wss://relay.walletconnect.com'
       );
 
@@ -110,6 +115,9 @@ class SupaWcV2 {
       var pairingInfo = signClient.pairings.getAll().last;
       supaSessionData = SupaWalletConnectSession(uri, session, mapSessionKeyChain[session.topic]??"", pairingInfo, wallet: wallet);
       print("Supa Session ${jsonEncode(supaSessionData!.toJson())}");
+      if (this.connectCallBack != null) {
+        this.connectCallBack!(supaSessionData!);
+      }
       storage.write(key: sessionKeyStore, value: jsonEncode(supaSessionData!.toJson()));
       initialized = true;
     }
