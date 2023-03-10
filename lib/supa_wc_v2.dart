@@ -182,9 +182,15 @@ class SupaWcV2 {
   }
 
   Future<void> removeSession() async{
-    await signClient.disconnectSession(topic: supaSessionData!.sessionData.topic, reason: WalletConnectError(code: 6000, message: "User disconnected."));
-    await storage.delete(key: sessionKeyStore);
-    initialized = false;
-    isFirstTimeConnect = false;
+    try {
+      if (initialized) {
+        await signClient.disconnectSession(topic: supaSessionData!.sessionData.topic, reason: WalletConnectError(code: 6000, message: "User disconnected."));
+        await storage.delete(key: sessionKeyStore);
+        initialized = false;
+        isFirstTimeConnect = false;
+      }
+    } catch(e){
+      print("Remove session error $e");
+    }
   }
 }
