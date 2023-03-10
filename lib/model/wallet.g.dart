@@ -21,6 +21,9 @@ Wallet _$WalletFromJson(Map json) => Wallet(
           Map<String, dynamic>.from(json['desktop'] as Map)),
       metadata: WalletMetadata.fromJson(
           Map<String, dynamic>.from(json['metadata'] as Map)),
+      versions: (json['versions'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
 
 Map<String, dynamic> _$WalletToJson(Wallet instance) => <String, dynamic>{
@@ -28,6 +31,7 @@ Map<String, dynamic> _$WalletToJson(Wallet instance) => <String, dynamic>{
       'name': instance.name,
       'description': instance.description,
       'homepage': instance.homepage,
+      'versions': instance.versions,
       'chains': instance.chains,
       'app': instance.app.toJson(),
       'mobile': instance.mobile.toJson(),

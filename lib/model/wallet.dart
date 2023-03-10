@@ -8,6 +8,7 @@ class Wallet {
   final String name;
   final String? description;
   final String? homepage;
+  final List<String>? versions;
   final List<String> chains;
 
   final WalletAppLinks app;
@@ -25,6 +26,7 @@ class Wallet {
     required this.mobile,
     required this.desktop,
     required this.metadata,
+    this.versions
   });
 
   factory Wallet.fromJson(Map<String, dynamic> json) => _$WalletFromJson(json);

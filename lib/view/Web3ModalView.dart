@@ -60,9 +60,11 @@ class Web3ModelViewState extends State<Web3ModelView> {
         .getSingleFile('https://registry.walletconnect.org/data/wallets.json');
     final walletData = jsonDecode(await walletFile.readAsString());
 
-    return walletData.entries
+    List<Wallet> listData = walletData.entries
         .map<Wallet>((data) => Wallet.fromJson(data.value))
         .toList();
+    listData = listData.where((element) => (element.versions??[]).contains("2")).toList();
+    return listData;
   }
 
   @override
@@ -72,6 +74,7 @@ class Web3ModelViewState extends State<Web3ModelView> {
       height: MediaQuery.of(context).size.height*2/3,
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(16),
         color: Colors.white,),
+      padding: EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 8),
       child: DefaultTabController(
           length: 2,
           child: Column(
@@ -111,7 +114,7 @@ class Web3ModelViewState extends State<Web3ModelView> {
 
   Widget _buildModalContent(int type) {
    if (type == 0) {
-     if (Platform.isAndroid) {
+     if (!Platform.isAndroid) {
        return Container(
            child: GestureDetector(
              onTap: (){
