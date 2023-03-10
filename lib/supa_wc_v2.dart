@@ -50,6 +50,9 @@ class SupaWcV2 {
   }
 
   Future<void> initWalletConnectClient() async{
+    if (initialized) {
+      return;
+    }
     AndroidOptions _getAndroidOptions() => const AndroidOptions(
       encryptedSharedPreferences: true,
     );
