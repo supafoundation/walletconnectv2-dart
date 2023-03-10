@@ -23,10 +23,10 @@ class _MyAppState extends State<MyApp> {
   final _supaWcV2Plugin = SupaWcV2(
       SupaWalletConnectParam(
           "62a566d93c3dde42fff6dc683ed2c9d4",
-          "SupaCharge",
-          "NFT App",
+          "Test app",
+          "Test App",
           "https://supacharge.io",
-          ["https://nftstorage.link/ipfs/bafkreihwlc5nzn7756ogqpuhdc3aumzscaj5qsdlpcghdpohugtcu5e5w4"]),
+          ["https://play-lh.googleusercontent.com/i-Nj5MVnu6Dek0z2x3a2z7Ly1G3nbkIq3uRtgH4w1XcLpsVazk-mImNbsF6_qdf2upQ=w480-h960-rw"]),
           (supaSession){
 
   });
@@ -71,7 +71,7 @@ class _MyAppState extends State<MyApp> {
       ),
       body: Center(
           child: SupaWcV2.instance.supaSessionData == null ?TextButton(
-            onPressed: (){
+            onPressed: () async{
               showDialog(context: context, builder: (ctx){
                 return Dialog(
                     backgroundColor: Colors.transparent,
@@ -104,6 +104,18 @@ class _MyAppState extends State<MyApp> {
                     });
                   },
                   child: Text("Connect"),
+                ),
+
+                TextButton(
+                  onPressed: ()async{
+                    await SupaWcV2.instance.removeSession();
+                    SupaWcV2.instance.supaSessionData = null;
+                    await SupaWcV2.instance.initWalletConnectClient();
+                    setState(() {
+
+                    });
+                  },
+                  child: Text("Disconnect"),
                 )
               ],
             ))

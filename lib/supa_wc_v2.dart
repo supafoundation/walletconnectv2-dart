@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -7,6 +8,7 @@ import 'package:supa_wc_v2/model/SupaWalletConnectSession.dart';
 import 'package:supa_wc_v2/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:walletconnect_flutter_v2/apis/core/pairing/utils/pairing_models.dart';
+import 'package:walletconnect_flutter_v2/apis/models/basic_models.dart';
 import 'package:walletconnect_flutter_v2/apis/sign_api/models/json_rpc_models.dart';
 import 'package:walletconnect_flutter_v2/apis/sign_api/models/proposal_models.dart';
 import 'package:walletconnect_flutter_v2/apis/sign_api/models/sign_client_models.dart';
@@ -18,13 +20,17 @@ export 'view/Web3ModalView.dart';
 
 class SupaWcV2 {
   late SignClient signClient;
-  late FlutterSecureStorage storage;
+  FlutterSecureStorage storage = FlutterSecureStorage(aOptions: const AndroidOptions(
+    encryptedSharedPreferences: true,
+  ));
+
   SupaWalletConnectSession? supaSessionData;
   Function(SupaWalletConnectSession)? connectCallBack;
   SupaWalletConnectParam? param;
 
 
   bool initialized = false;
+  bool isFirstTimeConnect = false;
   String sessionKeyStore = "supawcv2_session";
   // final String projectId = "62a566d93c3dde42fff6dc683ed2c9d4";
   String uri = "";
@@ -53,9 +59,6 @@ class SupaWcV2 {
     if (initialized) {
       return;
     }
-    AndroidOptions _getAndroidOptions() => const AndroidOptions(
-      encryptedSharedPreferences: true,
-    );
 
     final paringMeta = PairingMetadata(
       name: param!.name,
@@ -64,14 +67,12 @@ class SupaWcV2 {
       icons: param!.icons,
     );
 
-
-    storage = FlutterSecureStorage(aOptions: _getAndroidOptions());
-
     var sessionStoreStr = await storage.read(key: sessionKeyStore);
 
     if (sessionStoreStr != null) {
       // da co session, check expired
       print("Has session $sessionStoreStr");
+      isFirstTimeConnect = false;
       supaSessionData = SupaWalletConnectSession.fromJson(Map<String, dynamic>.from(jsonDecode(sessionStoreStr)));
       if (supaSessionData!.getExpiredTime() > DateTime.now().millisecondsSinceEpoch/1000) {
         // init
@@ -122,6 +123,8 @@ class SupaWcV2 {
         this.connectCallBack!(supaSessionData!);
       }
       storage.write(key: sessionKeyStore, value: jsonEncode(supaSessionData!.toJson()));
+
+      isFirstTimeConnect = true;
       initialized = true;
     }
 
@@ -150,7 +153,21 @@ class SupaWcV2 {
   Future<String> personalSign(String message) async{
     if (initialized) {
       openWallet();
-      final dynamic signResponse = await signClient.request(
+      if (isFirstTimeConnect) {
+        isFirstTimeConnect = false;
+        signClient.request(
+          topic: supaSessionData!.sessionData.topic,
+          chainId: 'eip155:1',
+          request: SessionRequestParams(
+            method: 'personal_sign',
+            params: [message, getWalletAddress()],
+          ),
+        );
+        await Future.delayed(Duration(milliseconds: 5000));
+        print("After 5s");
+      }
+
+      var signResponse = await signClient.request(
         topic: supaSessionData!.sessionData.topic,
         chainId: 'eip155:1',
         request: SessionRequestParams(
@@ -161,12 +178,14 @@ class SupaWcV2 {
       print("Sign done");
       return signResponse.toString();
     }
-    print("Init ${initialized}");
     return "";
   }
 
   Future<void> removeSession() async{
+
+    await signClient.disconnectSession(topic: supaSessionData!.sessionData.topic, reason: WalletConnectError(code: 6000, message: "User disconnected."));
     await storage.delete(key: sessionKeyStore);
     initialized = false;
+    isFirstTimeConnect = false;
   }
 }
