@@ -114,7 +114,7 @@ class Web3ModelViewState extends State<Web3ModelView> {
 
   Widget _buildModalContent(int type) {
    if (type == 0) {
-     if (!Platform.isAndroid) {
+     if (Platform.isAndroid) {
        return Container(
            child: GestureDetector(
              onTap: (){
