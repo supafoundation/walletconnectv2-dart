@@ -134,7 +134,11 @@ class SupaWcV2 {
     if (Utils.isAndroid) {
       launchUrl(Uri.parse(uri));
     } else {
-     Utils.iosLaunch(wallet: supaSessionData!.wallet!, uri: uri);
+     if (supaSessionData?.wallet == null) {
+       Utils.iosLaunch(wallet: wallet!, uri: uri);
+     } else{
+       Utils.iosLaunch(wallet: supaSessionData!.wallet!, uri: uri);
+     }
     }
   }
 
@@ -155,14 +159,14 @@ class SupaWcV2 {
       openWallet();
       if (isFirstTimeConnect) {
         isFirstTimeConnect = false;
-        signClient.request(
-          topic: supaSessionData!.sessionData.topic,
-          chainId: 'eip155:1',
-          request: SessionRequestParams(
-            method: 'personal_sign',
-            params: [message, getWalletAddress()],
-          ),
-        );
+        // signClient.request(
+        //   topic: supaSessionData!.sessionData.topic,
+        //   chainId: 'eip155:1',
+        //   request: SessionRequestParams(
+        //     method: 'personal_sign',
+        //     params: [message, getWalletAddress()],
+        //   ),
+        // );
         await Future.delayed(Duration(milliseconds: 5000));
         print("After 5s");
       }

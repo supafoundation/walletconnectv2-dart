@@ -145,6 +145,7 @@ class Web3ModelViewState extends State<Web3ModelView> {
                return GestureDetector(
                  onTap: (){
                     widget.wcClient.wallet = listWallet[idx];
+                    widget.wcClient.connect();
                  },
                  child: Container(
                    color: Colors.white,
