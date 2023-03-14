@@ -155,7 +155,11 @@ class Web3ModelViewState extends State<Web3ModelView> {
                      crossAxisAlignment: CrossAxisAlignment.center,
                      children: [
                        Text(
-                         "${listWallet[idx].name}"
+                         "${listWallet[idx].name}",
+                         style: const TextStyle(
+                           color: Colors.black,
+                           fontSize: 16
+                         ),
                        ),
                        Row(
                          mainAxisSize: MainAxisSize.min,
