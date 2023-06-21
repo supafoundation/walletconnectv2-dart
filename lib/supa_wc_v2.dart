@@ -13,13 +13,14 @@ import 'package:walletconnect_flutter_v2/apis/sign_api/models/json_rpc_models.da
 import 'package:walletconnect_flutter_v2/apis/sign_api/models/proposal_models.dart';
 import 'package:walletconnect_flutter_v2/apis/sign_api/models/sign_client_models.dart';
 import 'package:walletconnect_flutter_v2/apis/sign_api/sign_client.dart';
+import 'package:walletconnect_flutter_v2/apis/web3app/web3app.dart';
 
 import 'model/wallet.dart';
 
 export 'view/Web3ModalView.dart';
 
 class SupaWcV2 {
-  late SignClient signClient;
+  late Web3App signClient;
   FlutterSecureStorage storage = FlutterSecureStorage(aOptions: const AndroidOptions(
     encryptedSharedPreferences: true,
   ));
@@ -77,25 +78,25 @@ class SupaWcV2 {
       if (supaSessionData!.getExpiredTime() > DateTime.now().millisecondsSinceEpoch/1000) {
         // init
         uri = supaSessionData!.uri;
-        signClient = await SignClient.createInstance(projectId: param!.projectId,
+        signClient = await Web3App.createInstance(projectId: param!.projectId,
             metadata: paringMeta,
             relayUrl: 'wss://relay.walletconnect.com');
         await signClient.init();
-        signClient.core.crypto.keyChain!.set(supaSessionData!.sessionData.topic, supaSessionData!.keyChainValue);
-        signClient.pairings.set(supaSessionData!.pairingInfo.topic, supaSessionData!.pairingInfo);
-        signClient.engine.sessions.set(supaSessionData!.sessionData.topic, supaSessionData!.sessionData);
-        await signClient.engine.core.pairing.updateMetadata(
-          topic: "${supaSessionData!.pairingInfo.topic}",
-          metadata: supaSessionData!.sessionData.peer.metadata,
-        );
-        await signClient.engine.core.pairing.activate(topic: supaSessionData!.sessionData.topic);
-        await signClient.core.relayClient.subscribe(topic: supaSessionData!.sessionData.topic);
+        // signClient.core.crypto.keyChain!.set(supaSessionData!.sessionData.topic, supaSessionData!.keyChainValue);
+        // signClient.pairings.set(supaSessionData!.pairingInfo.topic, supaSessionData!.pairingInfo);
+        // signClient.engine.sessions.set(supaSessionData!.sessionData.topic, supaSessionData!.sessionData);
+        // await signClient.engine.core.pairing.updateMetadata(
+        //   topic: "${supaSessionData!.pairingInfo.topic}",
+        //   metadata: supaSessionData!.sessionData.peer.metadata,
+        // );
+        // await signClient.engine.core.pairing.activate(topic: supaSessionData!.sessionData.topic);
+        // await signClient.core.relayClient.subscribe(topic: supaSessionData!.sessionData.topic);
         initialized = true;
       }
     }
 
     if (!initialized) {
-      signClient = await SignClient.createInstance(
+      signClient = await Web3App.createInstance(
           metadata: paringMeta,
           projectId: param!.projectId,
           relayUrl: 'wss://relay.walletconnect.com'
@@ -117,7 +118,7 @@ class SupaWcV2 {
       var session = await resp.session.future;
       var mapSessionKeyChain = signClient.core.storage.get(signClient.core.crypto.keyChain!.storageKey);
       var pairingInfo = signClient.pairings.getAll().last;
-      supaSessionData = SupaWalletConnectSession(uri, session, mapSessionKeyChain[session.topic]??"", pairingInfo, wallet: wallet);
+      supaSessionData = SupaWalletConnectSession(uri, session, mapSessionKeyChain![session.topic]??"", pairingInfo, wallet: wallet);
       print("Supa Session ${jsonEncode(supaSessionData!.toJson())}");
       if (this.connectCallBack != null) {
         this.connectCallBack!(supaSessionData!);
@@ -188,7 +189,7 @@ class SupaWcV2 {
   Future<void> removeSession() async{
     try {
       if (initialized) {
-        await signClient.disconnect(topic: supaSessionData!.sessionData.topic, reason: WalletConnectError(code: 6000, message: "User disconnected."));
+        await signClient.disconnectSession(topic: supaSessionData!.sessionData.topic, reason: WalletConnectError(code: 6000, message: "User disconnected."));
         await storage.delete(key: sessionKeyStore);
         initialized = false;
         isFirstTimeConnect = false;

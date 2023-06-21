@@ -22,7 +22,7 @@ class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   final _supaWcV2Plugin = SupaWcV2(
       SupaWalletConnectParam(
-          "62a566d93c3dde42fff6dc683ed2c9d4",
+          "cff05f7178b7c4b32d665fb40ebab547",
           "Test app",
           "Test App",
           "https://supacharge.io",
