@@ -12,8 +12,8 @@ SupaWalletConnectSession _$SupaWalletConnectSessionFromJson(Map json) =>
       SessionData.fromJson(
           Map<String, dynamic>.from(json['sessionData'] as Map)),
       json['keyChainValue'] as String,
-      PairingInfo.fromJson(
-          Map<String, dynamic>.from(json['pairingInfo'] as Map)),
+      // PairingInfo.fromJson(
+      //     Map<String, dynamic>.from(json['pairingInfo'] as Map)),
       wallet: json['wallet'] == null
           ? null
           : Wallet.fromJson(Map<String, dynamic>.from(json['wallet'] as Map)),
@@ -24,7 +24,7 @@ Map<String, dynamic> _$SupaWalletConnectSessionToJson(
     <String, dynamic>{
       'sessionData': instance.sessionData.toJson(),
       'keyChainValue': instance.keyChainValue,
-      'pairingInfo': instance.pairingInfo.toJson(),
+      // 'pairingInfo': instance.pairingInfo.toJson(),
       'uri': instance.uri,
       'wallet': instance.wallet?.toJson(),
     };

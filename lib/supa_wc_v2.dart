@@ -103,6 +103,7 @@ class SupaWcV2 {
       );
 
 
+      print("Start connect wcv2");
       ConnectResponse resp =
       await signClient.connect(requiredNamespaces:  {
         'eip155': RequiredNamespace(
@@ -111,14 +112,17 @@ class SupaWcV2 {
           events: ["personal_sign", 'eth_sign'], // Requestable Methods
         ),
       });
+      print("Done connect wcv2");
       // Uri? uri = resp.uri;
       print("URI $uri. ${uri!.toString()}");
       uri = resp.uri.toString();
 
       var session = await resp.session.future;
-      var mapSessionKeyChain = signClient.core.storage.get(signClient.core.crypto.keyChain!.storageKey);
-      var pairingInfo = signClient.pairings.getAll().last;
-      supaSessionData = SupaWalletConnectSession(uri, session, mapSessionKeyChain![session.topic]??"", pairingInfo, wallet: wallet);
+      // var mapSessionKeyChain = signClient.core.storage.get(signClient.core.crypto.keyChain!.storageKey);
+      // var pairingInfo = signClient.pairings.getAll().last;
+      var mapSessionKeyChain = {};
+      // var pairingInfo = PairingInfo(topic: "", expiry: 1, relay: "", active: active);
+      supaSessionData = SupaWalletConnectSession(uri, session, mapSessionKeyChain[session.topic]??"", wallet: wallet);
       print("Supa Session ${jsonEncode(supaSessionData!.toJson())}");
       if (this.connectCallBack != null) {
         this.connectCallBack!(supaSessionData!);
@@ -168,6 +172,8 @@ class SupaWcV2 {
         //     params: [message, getWalletAddress()],
         //   ),
         // );
+        await signClient.signEngine.sessions.set(supaSessionData!.sessionData.topic, supaSessionData!.sessionData);
+
         await Future.delayed(Duration(milliseconds: 5000));
         print("After 5s");
       }
@@ -189,10 +195,10 @@ class SupaWcV2 {
   Future<void> removeSession() async{
     try {
       if (initialized) {
-        await signClient.disconnectSession(topic: supaSessionData!.sessionData.topic, reason: WalletConnectError(code: 6000, message: "User disconnected."));
-        await storage.delete(key: sessionKeyStore);
         initialized = false;
         isFirstTimeConnect = false;
+        await storage.delete(key: sessionKeyStore);
+        await signClient.disconnectSession(topic: supaSessionData!.sessionData.topic, reason: WalletConnectError(code: 6000, message: "User disconnected."));
       }
     } catch(e){
       print("Remove session error $e");

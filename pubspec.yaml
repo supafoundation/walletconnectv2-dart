@@ -16,7 +16,7 @@ dependencies:
   flutter_secure_storage: ^5.0.2
   json_annotation: ^4.8.0
   flutter_cache_manager: ^3.3.0
-  walletconnect_flutter_v2: ^2.0.10
+  walletconnect_flutter_v2: ^2.0.12
 
 dev_dependencies:
   flutter_test:

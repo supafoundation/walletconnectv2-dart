@@ -8,14 +8,14 @@ part 'SupaWalletConnectSession.g.dart';
 @JsonSerializable(anyMap: true, explicitToJson: true)
 class SupaWalletConnectSession {
   SupaWalletConnectSession(
-      this.uri, this.sessionData, this.keyChainValue, this.pairingInfo,
+      this.uri, this.sessionData, this.keyChainValue,
       {this.wallet});
 
   SessionData sessionData;
 
   String keyChainValue;
 
-  PairingInfo pairingInfo;
+  PairingInfo? pairingInfo;
 
   String uri;
 
