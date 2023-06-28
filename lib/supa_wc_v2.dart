@@ -137,20 +137,20 @@ class SupaWcV2 {
 
   }
 
-  void openWallet() {
+  void openWallet(String wcUri) {
     if (Utils.isAndroid) {
-      launchUrl(Uri.parse(uri));
+      launchUrl(Uri.parse(wcUri));
     } else {
-     if (supaSessionData?.wallet == null) {
-       Utils.iosLaunch(wallet: wallet!, uri: uri);
-     } else{
-       Utils.iosLaunch(wallet: supaSessionData!.wallet!, uri: uri);
-     }
+      if (supaSessionData?.wallet == null) {
+        Utils.iosLaunch(wallet: wallet!, uri: wcUri);
+      } else{
+        Utils.iosLaunch(wallet: supaSessionData!.wallet!, uri: wcUri);
+      }
     }
   }
 
   void connect() {
-    openWallet();
+    openWallet(uri);
   }
 
   String getWalletAddress() {
@@ -165,9 +165,13 @@ class SupaWcV2 {
     if (initialized) {
       var activeSession = signClient.getActiveSessions();
       if (!activeSession.containsKey(supaSessionData!.sessionData.topic)) {
-        signClient.sessions.set(supaSessionData!.sessionData.topic, supaSessionData!.sessionData)
+        await signClient.sessions.set(supaSessionData!.sessionData.topic, supaSessionData!.sessionData);
       }
-      openWallet();
+      if (!signClient.signEngine.getActiveSessions().containsKey(supaSessionData!.sessionData.topic)) {
+        await signClient.signEngine.sessions.set(supaSessionData!.sessionData.topic, supaSessionData!.sessionData);
+      }
+      print("Session data ${signClient.getActiveSessions().keys.toList()}. ${signClient.signEngine.getActiveSessions().keys.toList()}. ${signClient.signEngine.sessions.has(supaSessionData!.sessionData.topic)}");
+      openWallet("");
       if (isFirstTimeConnect) {
         isFirstTimeConnect = false;
         // signClient.request(

@@ -27,12 +27,12 @@ class Utils {
   }) async {
     if (await openableLink(wallet.mobile.universal)) {
       await launchUrl(
-        convertToWcLink(appLink: wallet.mobile.universal!, wcUri: uri),
+        uri == ""?Uri.parse(wallet.mobile.universal!):convertToWcLink(appLink: wallet.mobile.universal!, wcUri: uri),
         mode: LaunchMode.externalApplication,
       );
     } else if (await openableLink(wallet.mobile.native)) {
       await launchUrl(
-        convertToWcLink(appLink: wallet.mobile.native!, wcUri: uri),
+        uri == ""?Uri.parse(wallet.mobile.universal!):convertToWcLink(appLink: wallet.mobile.native!, wcUri: uri),
       );
     } else if (await openableLink(wallet.app.ios)) {
       await launchUrl(Uri.parse(wallet.app.ios!));
