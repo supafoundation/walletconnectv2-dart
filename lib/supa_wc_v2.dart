@@ -13,6 +13,7 @@ import 'package:walletconnect_flutter_v2/apis/sign_api/models/json_rpc_models.da
 import 'package:walletconnect_flutter_v2/apis/sign_api/models/proposal_models.dart';
 import 'package:walletconnect_flutter_v2/apis/sign_api/models/sign_client_models.dart';
 import 'package:walletconnect_flutter_v2/apis/sign_api/sign_client.dart';
+import 'package:walletconnect_flutter_v2/apis/utils/errors.dart';
 import 'package:walletconnect_flutter_v2/apis/web3app/web3app.dart';
 
 import 'model/wallet.dart';
@@ -162,6 +163,10 @@ class SupaWcV2 {
 
   Future<String> personalSign(String message) async{
     if (initialized) {
+      var activeSession = signClient.getActiveSessions();
+      if (!activeSession.containsKey(supaSessionData!.sessionData.topic)) {
+        signClient.sessions.set(supaSessionData!.sessionData.topic, supaSessionData!.sessionData)
+      }
       openWallet();
       if (isFirstTimeConnect) {
         isFirstTimeConnect = false;
@@ -173,7 +178,7 @@ class SupaWcV2 {
         //     params: [message, getWalletAddress()],
         //   ),
         // );
-        await signClient.signEngine.sessions.set(supaSessionData!.sessionData.topic, supaSessionData!.sessionData);
+        // await signClient.signEngine.sessions.set(supaSessionData!.sessionData.topic, supaSessionData!.sessionData);
 
         await Future.delayed(Duration(milliseconds: 5000));
         print("After 5s");
@@ -199,7 +204,15 @@ class SupaWcV2 {
         initialized = false;
         isFirstTimeConnect = false;
         await storage.delete(key: sessionKeyStore);
-        await signClient.disconnectSession(topic: supaSessionData!.sessionData.topic, reason: WalletConnectError(code: 6000, message: "User disconnected."));
+        var data = signClient.getActiveSessions();
+        data.forEach((key, value) async{
+          await signClient.disconnectSession(
+              topic: key,
+              reason: Errors.getSdkError(
+                Errors.USER_DISCONNECTED,
+              ));
+        });
+        // await signClient.disconnectSession(topic: supaSessionData!.sessionData.topic, reason: WalletConnectError(code: 6000, message: "User disconnected."));
       }
     } catch(e){
       print("Remove session error $e");
