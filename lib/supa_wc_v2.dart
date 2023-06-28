@@ -109,7 +109,8 @@ class SupaWcV2 {
         'eip155': RequiredNamespace(
           chains: ['eip155:1'], // Ethereum chain
           methods: ['eth_sign','personal_sign'],
-          events: ["personal_sign", 'eth_sign'], // Requestable Methods
+          events: ["chainChanged",
+            "accountsChanged"], // Requestable Methods
         ),
       });
       print("Done connect wcv2");
