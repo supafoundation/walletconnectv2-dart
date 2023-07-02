@@ -184,7 +184,7 @@ class SupaWcV2 {
         // );
         // await signClient.signEngine.sessions.set(supaSessionData!.sessionData.topic, supaSessionData!.sessionData);
 
-        await Future.delayed(Duration(milliseconds: 5000));
+        await Future.delayed(Duration(milliseconds: 1000));
         print("After 5s");
       }
 
@@ -209,6 +209,7 @@ class SupaWcV2 {
         isFirstTimeConnect = false;
         uri = "";
         wallet = null;
+        supaSessionData = null;
         await storage.delete(key: sessionKeyStore);
         var data = signClient.getActiveSessions();
         data.forEach((key, value) async{
