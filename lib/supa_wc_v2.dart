@@ -207,6 +207,8 @@ class SupaWcV2 {
       if (initialized) {
         initialized = false;
         isFirstTimeConnect = false;
+        uri = "";
+        wallet = null;
         await storage.delete(key: sessionKeyStore);
         var data = signClient.getActiveSessions();
         data.forEach((key, value) async{

@@ -144,12 +144,13 @@ class Web3ModelViewState extends State<Web3ModelView> {
              itemBuilder: (ctx, idx){
                return GestureDetector(
                  onTap: (){
+                   Navigator.of(context).pop();
                     widget.wcClient.wallet = listWallet[idx];
                     widget.wcClient.connect();
                  },
                  child: Container(
                    color: Colors.white,
-                   padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
+                   padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
                    child: Row(
                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                      crossAxisAlignment: CrossAxisAlignment.center,
