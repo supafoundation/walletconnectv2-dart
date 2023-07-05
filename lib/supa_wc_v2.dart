@@ -11,6 +11,7 @@ import 'package:walletconnect_flutter_v2/apis/core/pairing/utils/pairing_models.
 import 'package:walletconnect_flutter_v2/apis/models/basic_models.dart';
 import 'package:walletconnect_flutter_v2/apis/sign_api/models/json_rpc_models.dart';
 import 'package:walletconnect_flutter_v2/apis/sign_api/models/proposal_models.dart';
+import 'package:walletconnect_flutter_v2/apis/sign_api/models/session_models.dart';
 import 'package:walletconnect_flutter_v2/apis/sign_api/models/sign_client_models.dart';
 import 'package:walletconnect_flutter_v2/apis/sign_api/sign_client.dart';
 import 'package:walletconnect_flutter_v2/apis/utils/errors.dart';
@@ -106,14 +107,24 @@ class SupaWcV2 {
 
       print("Start connect wcv2");
       ConnectResponse resp =
-      await signClient.connect(requiredNamespaces:  {
-        'eip155': RequiredNamespace(
-          chains: ['eip155:1'], // Ethereum chain
-          methods: ['eth_sign','personal_sign'],
-          events: ["chainChanged",
-            "accountsChanged"], // Requestable Methods
-        ),
-      });
+      await signClient.connect(
+        requiredNamespaces:  {
+          'eip155': RequiredNamespace(
+            chains: ['eip155:1'], // Ethereum chain
+            methods: ['eth_sign','personal_sign'],
+            events: ["chainChanged",
+              "accountsChanged"], // Requestable Methods
+          ),
+        },
+        //   optionalNamespaces: {
+        // 'eip155': RequiredNamespace(
+        //   chains: ['eip155:1', 'eip155:250', 'eip155:137', 'eip155:56'], // Ethereum chain
+        //   methods: ['eth_sign','personal_sign'],
+        //   events: ["chainChanged",
+        //     "accountsChanged"], // Requestable Methods
+        // ),
+        // }
+      );
       print("Done connect wcv2");
       // Uri? uri = resp.uri;
       print("URI $uri. ${uri!.toString()}");
@@ -139,7 +150,10 @@ class SupaWcV2 {
 
   void openWallet(String wcUri) {
     if (Utils.isAndroid) {
-      launchUrl(Uri.parse(wcUri));
+      // print("URI ${uri}");
+
+      launchUrl(Uri.parse(uri));
+
     } else {
       if (supaSessionData?.wallet == null) {
         Utils.iosLaunch(wallet: wallet!, uri: wcUri);
@@ -148,6 +162,73 @@ class SupaWcV2 {
       }
     }
   }
+
+  // Future<void> launchRedirect({
+  //   Uri? nativeUri,
+  //   Uri? universalUri,
+  // }) async {
+  //
+  //   // Launch the link
+  //   if (nativeUri != null && await canLaunchUrl(nativeUri)) {
+  //     print(
+  //       'Navigating deep links. Launching native URI.',
+  //     );
+  //     try {
+  //       await launchUrl(
+  //         nativeUri,
+  //         mode: LaunchMode.externalApplication,
+  //       );
+  //     } catch (e) {
+  //       print(
+  //         'Navigating deep links. Launching native failed, launching universal URI.',
+  //       );
+  //       // Fallback to universal link
+  //       if (universalUri != null && await canLaunchUrl(universalUri)) {
+  //         await launchUrl(
+  //           universalUri,
+  //           mode: LaunchMode.externalApplication,
+  //         );
+  //       } else {
+  //         throw Exception('Unable to open the wallet');
+  //       }
+  //     }
+  //   } else if (universalUri != null && await canLaunchUrl(universalUri)) {
+  //     print(
+  //       'Navigating deep links. Launching universal URI.',
+  //     );
+  //     await launchUrl(
+  //       universalUri,
+  //       mode: LaunchMode.externalApplication,
+  //     );
+  //   } else {
+  //     throw Exception('Unable to open the wallet');
+  //   }
+  // }
+
+  // Redirect? _constructRedirect(SessionData? session) {
+  //   if (session == null) {
+  //     return null;
+  //   }
+  //
+  //   final Redirect? sessionRedirect = session?.peer.metadata.redirect;
+  //   final Redirect? explorerRedirect = Redirect(
+  //     native: "trust://",
+  //       universal: "https://link.trustwallet.com"
+  //   );
+  //
+  //   if (sessionRedirect == null && explorerRedirect == null) {
+  //     return null;
+  //   }
+  //
+  //   // Combine the redirect data from the session and the explorer API.
+  //   // The explorer API is the source of truth.
+  //   return Redirect(
+  //     native: explorerRedirect?.native ?? sessionRedirect?.native,
+  //     universal: explorerRedirect?.universal ?? sessionRedirect?.universal,
+  //   );
+  // }
+
+
 
   void connect() {
     openWallet(uri);
@@ -184,8 +265,24 @@ class SupaWcV2 {
         // );
         // await signClient.signEngine.sessions.set(supaSessionData!.sessionData.topic, supaSessionData!.sessionData);
 
-        await Future.delayed(Duration(milliseconds: 1000));
-        print("After 5s");
+        if (Utils.isAndroid) {
+
+          try{
+            signClient.request(
+              topic: supaSessionData!.sessionData.topic,
+              chainId: 'eip155:1',
+              request: SessionRequestParams(
+                method: 'personal_sign',
+                params: [message, getWalletAddress()],
+              ),
+            );
+          }catch(e) {
+            print("Err $e");
+          }
+        }
+        print("Start ${DateTime.now().millisecondsSinceEpoch/1000}");
+        await Future.delayed(Duration(milliseconds: 10000));
+        print("After 5s ${DateTime.now().millisecondsSinceEpoch/1000}");
       }
 
       var signResponse = await signClient.request(
